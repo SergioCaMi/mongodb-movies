@@ -59,12 +59,12 @@ app.post("/movies", async (req, res) => {
   const collection = db.collection("movies");
   const { keyword, genre, type, startYear, endYear, minRating, maxRating } =
     req.body;
+    // Definimos un objeto para rellenar la consulta
   let query = {};
-// let sorted = `{ released: ${Number(req.body.sort)} }`;
 let sorted = { released: Number(req.body.sort) };
 console.log('Sort', sorted);
   if (keyword) {
-    query.title = { $regex: keyword, $options: "i" }; // Búsqueda insensible a mayúsculas y minúsculas
+    query.title = { $regex: keyword, $options: "i" }; //$regex permite buscar por patrones; $option permite opciones de búsqueda
   }
 
   if (genre) {
@@ -76,13 +76,12 @@ console.log('Sort', sorted);
   }
 
   if (startYear && endYear) {
-    query.released = { $gte: parseInt(startYear), $lte: parseInt(endYear) };
+    query.released = { $gte: parseInt(startYear), $lte: parseInt(endYear) };// 
   }
-
+// Si hay rango mínimo y máximo de rating, lo añadimos a la consulta
   if (minRating && maxRating) {
     query["imdb.rating"] = {
-      $gte: parseFloat(minRating),
-      $lte: parseFloat(maxRating),
+      $gte: parseFloat(minRating), $lte: parseFloat(maxRating),
     };
   }
 
