@@ -16,23 +16,46 @@
     <main class="container">
         <form action="/movies" method="POST">
             <h1>MongoDB Movies</h1>
-            <label for="keyWord">Palabra Clave:</label>
-            <input type="text" id="keyWord" name="keyWord" required>
+
+            <label for="keyword">Palabra Clave:</label>
+            <input type="text" id="keyword" name="keyword">
+
+            <label for="genre">Género:</label>
+            <input type="text" id="genre" name="genre">
+
             <label for="type">Tipo de filmación:</label>
-            <select id="type" name="type" required>
+            <select id="type" name="type">
                 <option value="">Todos los tipos</option>
-                <option value="Pelicula">Película</option>
-                <option value="Serie">Serie</option>
+                <option value="movie">Película</option>
+                <option value="series">Serie</option>
             </select>
-            <label for="director">Director:</label>
-            <input type="text" id="director" name="director" required>
-            <button type="submit">Add Movie</button>
+
+            <label for="startYear">Año de inicio:</label>
+            <input type="number" id="startYear" name="startYear" min="1900" max="2023">
+
+            <label for="endYear">Año de fin:</label>
+            <input type="number" id="endYear" name="endYear" min="1900" max="2023">
+
+            <label for="minRating">Calificación mínima:</label>
+            <input type="number" id="minRating" name="minRating" min="0" max="10" step="0.1">
+
+            <label for="maxRating">Calificación máxima:</label>
+            <input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1">
+
+            <label for="sort">Método de orden:</label>
+            <select id="sort" name="sort">
+                <option value="1">Ascending</option>
+                <option value="-1">Descending</option>
+            </select>
+
+
+            <button type="submit">Buscar</button>
         </form>
         <div class="movies">
             <h2>Movies List</h2>
             <% if (movies && movies.length> 0) { %>
-                <article>
-                    <% movies.forEach(movie=> { %>
+                <% movies.forEach(movie=> { %>
+                    <article>
                         <header style="text-align: center;">
                             <strong>
                                 <%= movie.title %>
@@ -40,15 +63,21 @@
                         </header>
                         <img src="<%= movie.poster %>" alt="Movie Poster" width="500"
                             style="display: block; margin: 0 auto;">
-                        <p>
-                            <%= movie.fullplot %> (<%= movie.released %>)
-                        </p>
-
-                        <% }) %>
-                            </ul>
-                            <% } else { %>
-                                <p>No hay películas para mostrar</p>
-                                <% } %>
+                        <ul>
+                            <li><strong>Género:</strong>
+                            <%= movie.genres.join(', ') %></li>
+                            <li><strong>Tipo:</strong> <%= movie.type %></li>
+                            <li><strong>Calificación:</strong> <%= movie.imdb.rating %></li>
+                            <li><strong>Año:</strong> <%= new Date(movie.released).toLocaleDateString() %></li>
+                        </ul>
+                        <footer>
+                            <%= movie.fullplot %> (<%= movie.year %>)
+                                    </foot>
+                    </article>
+                    <% }) %>
+                        <% } else { %>
+                            <p>No hay películas para mostrar</p>
+                            <% } %>
     </main>
 </body>
 
