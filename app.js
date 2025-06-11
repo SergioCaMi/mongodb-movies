@@ -35,7 +35,8 @@ app.set("views", path.join(__dirname, "views"));
 // Conectar a la base de datos al iniciar el servidor
 bdConect();
 
-// ******************** Rutas ********************
+// ********************************* Rutas *********************************
+// ********************************* Home *********************************
 app.get("/", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
@@ -47,24 +48,40 @@ app.get("/", async (req, res) => {
     const doc = await cursor.next(); // Obtenemos el siguiente documento
     movies.push(doc); // Añadimos el documento al array
   }
+  const genres = await collection
+    .aggregate([
+      { $unwind: "$genres" },
+      { $group: { _id: "$genres" } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+
   res.render("index.ejs", {
     movies: movies,
     title: "Movies",
+    genres: genres,
   });
 });
 
+// ********************************* Ruta para buscar películas *********************************
 app.post("/movies", async (req, res) => {
-  console.log(req.body);
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
   const { keyword, genre, type, startYear, endYear, minRating, maxRating } =
     req.body;
-    // Definimos un objeto para rellenar la consulta
+  const genres = await collection
+    .aggregate([
+      { $unwind: "$genres" },
+      { $group: { _id: "$genres" } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+
   let query = {};
-let sorted = { released: Number(req.body.sort) };
-console.log('Sort', sorted);
+  let sorted = { released: Number(req.body.sort) };
+
   if (keyword) {
-    query.title = { $regex: keyword, $options: "i" }; //$regex permite buscar por patrones; $option permite opciones de búsqueda
+    query.title = { $regex: keyword, $options: "i" }; //$regex permite buscar por patrones; $option permite opciones de búsqueda (i = case-insensitive)
   }
 
   if (genre) {
@@ -76,16 +93,20 @@ console.log('Sort', sorted);
   }
 
   if (startYear && endYear) {
-    query.released = { $gte: parseInt(startYear), $lte: parseInt(endYear) };// 
+    query.released = { $gte: parseInt(startYear), $lte: parseInt(endYear) }; //
   }
-// Si hay rango mínimo y máximo de rating, lo añadimos a la consulta
+
+  // Si hay rango mínimo y máximo de rating, lo añadimos a la consulta
   if (minRating && maxRating) {
     query["imdb.rating"] = {
-      $gte: parseFloat(minRating), $lte: parseFloat(maxRating),
+      $gte: parseFloat(minRating),
+      $lte: parseFloat(maxRating),
     };
   }
 
-const cursor = collection.find(query).sort(sorted).limit(10);
+  console.log("Query", query);
+
+  const cursor = collection.find(query).sort(sorted).limit(10);
   const movies = [];
   while (await cursor.hasNext()) {
     const doc = await cursor.next();
@@ -93,14 +114,43 @@ const cursor = collection.find(query).sort(sorted).limit(10);
   }
   res.render("index.ejs", {
     movies: movies,
+    genres: genres,
     title: "Movies",
   });
 });
 
-// Ruta 404 para endpoints no definidos
+//*********************************  Ruta para mostrar el formulario de añadir *********************************
+app.get("/movies/add-form", async (req, res) => {
+  res.render("addForm.ejs");
+});
+
+//*********************************  Ruta para añadir *********************************
+app.post("/movies/add-form", async (req, res) => {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+
+  //  1 Obtener cada uno de los campos de req.body
+  console.log(req.body);
+  const newMovie = {
+    title: req.body.title,
+    poster: req.body.urlImage,
+  };
+  try {
+    const resultado = await collection.insertOne(newMovie);
+    if (resultado.acknowledged) {
+      console.log("Película añadida correctamente");
+    }
+  } catch (e) {
+    console.log("Error al añadir la nueva película", e.message);
+  }
+});
+
+// ********************************* Ruta 404 para endpoints no definidos *********************************
 app.use((req, res) => {
   res.status(404).send("Ruta no encontrada");
 });
+
+// ********************************* Manejo de errores global *********************************
 
 app.use((err, req, res, next) => {
   console.error(err);
@@ -111,7 +161,7 @@ app.use((err, req, res, next) => {
     );
 });
 
-// ********** Funciones **********
+// ********************************* Funciones *********************************
 async function bdConect() {
   try {
     await client.connect();

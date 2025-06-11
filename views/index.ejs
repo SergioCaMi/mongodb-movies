@@ -6,12 +6,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
     <title>MongoDB Movies</title>
+    <style>
+        body{
+            padding: 50px;
+        }
+    </style>
 </head>
 
 <body>
     <div class="header">
-        <a href="/home">Home</a>
-        <a href="/recomendation">Recomendation Page</a>
+        <!-- <a href="/">Home</a> -->
+        <a href="/movies/add-form">New Image</a>
     </div>
     <main class="container">
         <form action="/movies" method="POST">
@@ -20,8 +25,15 @@
             <label for="keyword">Palabra Clave:</label>
             <input type="text" id="keyword" name="keyword">
 
-            <label for="genre">Género:</label>
-            <input type="text" id="genre" name="genre">
+            <label for="genre">Género: </label>
+            <select id="genres" name="genres">
+                <option value="">Cualquier género</option>
+                    <% genres.forEach(genre=> { %>
+                <option value="<%= genre._id %>">
+                    <%= genre._id %>
+                </option>
+                <% }); %>
+            </select>
 
             <label for="type">Tipo de filmación:</label>
             <select id="type" name="type">
@@ -43,10 +55,11 @@
             <input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1">
 
             <label for="sort">Método de orden:</label>
-            <select id="sort" name="sort">
+            <select id="sort" name="sort" onchange="window.location.href='/'">
                 <option value="1">Ascending</option>
                 <option value="-1">Descending</option>
             </select>
+
 
 
             <button type="submit">Buscar</button>
@@ -65,7 +78,7 @@
                             style="display: block; margin: 0 auto;">
                         <ul>
                             <li><strong>Género:</strong>
-                            <%= movie.genres.join(', ') %></li>
+                                <%= movie.genres.join(', ') %></li>
                             <li><strong>Tipo:</strong> <%= movie.type %></li>
                             <li><strong>Calificación:</strong> <%= movie.imdb.rating %></li>
                             <li><strong>Año:</strong> <%= new Date(movie.released).toLocaleDateString() %></li>

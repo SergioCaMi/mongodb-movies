@@ -1,0 +1,38 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
+
+    <title>New Movie</title>
+    <style>
+        body {
+            padding: 50px;
+        }
+    </style>
+
+</head>
+
+<body>
+        <div class="header">
+        <a href="/">Home</a>
+        <!-- <a href="/movies/add-form">New Image</a> -->
+    </div>
+
+    <form class="container" action="/movies/add-form" method="POST">
+        <h1>MongoDB Movies</h1>
+
+        <label for="title">Título:</label>
+        <input type="text" id="title" name="title" required maxlength="60">
+
+        <label for="urlImage">Url de la imagen:</label>
+        <input type="url" id="urlImage" name="urlImage">
+        <button type="submit">Añadir</button>
+
+    </form>
+
+</body>
+
+</html>
