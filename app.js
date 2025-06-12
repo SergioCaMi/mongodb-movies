@@ -40,26 +40,20 @@ bdConect();
 app.get("/", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
-  //  const movies = await collection.find().limit(10).sort({released: -1}).toArray();
   const cursor = collection.find().sort({ released: -1 }).limit(10);
   const movies = [];
   while (await cursor.hasNext()) {
-    // Recorremos el cursor si hay más documentos
-    const doc = await cursor.next(); // Obtenemos el siguiente documento
-    movies.push(doc); // Añadimos el documento al array
+    const doc = await cursor.next();
+    movies.push(doc);
   }
-  const genres = await collection
-    .aggregate([
-      { $unwind: "$genres" },
-      { $group: { _id: "$genres" } },
-      { $sort: { _id: 1 } },
-    ])
-    .toArray();
-
+  const allGenres = await getGenres();
+  const allTypes = await getTypes();
   res.render("index.ejs", {
     movies: movies,
     title: "Movies",
-    genres: genres,
+    allGenres: allGenres,
+    allTypes: allTypes,
+    filters: {},
   });
 });
 
@@ -67,36 +61,51 @@ app.get("/", async (req, res) => {
 app.post("/movies", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
-  const { keyword, genre, type, startYear, endYear, minRating, maxRating } =
-    req.body;
-  const genres = await collection
-    .aggregate([
-      { $unwind: "$genres" },
-      { $group: { _id: "$genres" } },
-      { $sort: { _id: 1 } },
-    ])
-    .toArray();
+
+  // Extraemos filtros del formulario
+  const { keyword, genres, type, startYear, endYear, minRating, maxRating } = req.body;
+  const page = parseInt(req.body.page) || 1; // Página actual (por defecto: 1)
+  const PAGE_SIZE = 10;
+
+  const allGenres = await getGenres();
+  const allTypes = await getTypes();
 
   let query = {};
   let sorted = { released: Number(req.body.sort) };
 
   if (keyword) {
-    query.title = { $regex: keyword, $options: "i" }; //$regex permite buscar por patrones; $option permite opciones de búsqueda (i = case-insensitive)
+    query.title = { $regex: keyword, $options: "i" };
   }
 
-  if (genre) {
-    query.genres = genre;
+  if (genres) {
+    const genresArray = genres
+      .split(",")
+      .map((g) => g.trim())
+      .filter((g) => g);
+    if (genresArray.length > 0) {
+      query.genres = { $all: genresArray };
+    }
   }
 
   if (type) {
-    query.type = type;
+    const typesArray = type
+      .split(",")
+      .map((t) => t.trim())
+      .filter((t) => t);
+    if (typesArray.length > 0) {
+      query.type = { $in: typesArray };
+    }
   }
 
   if (startYear && endYear) {
-    query.released = { $gte: parseInt(startYear), $lte: parseInt(endYear) }; //
+    query["$expr"] = {
+      $and: [
+        { $gte: [{ $year: "$released" }, parseInt(startYear)] },
+        { $lte: [{ $year: "$released" }, parseInt(endYear)] }
+      ]
+    };
   }
 
-  // Si hay rango mínimo y máximo de rating, lo añadimos a la consulta
   if (minRating && maxRating) {
     query["imdb.rating"] = {
       $gte: parseFloat(minRating),
@@ -104,22 +113,27 @@ app.post("/movies", async (req, res) => {
     };
   }
 
-  console.log("Query", query);
+  // Contamos el total de resultados con filtro aplicado
+  const total = await collection.countDocuments(query);
 
-  const cursor = collection.find(query).sort(sorted).limit(10);
-  const movies = [];
-  while (await cursor.hasNext()) {
-    const doc = await cursor.next();
-    movies.push(doc);
-  }
+  // Calcular límites y offset
+  const totalPages = Math.ceil(total / PAGE_SIZE);
+  const skip = (page - 1) * PAGE_SIZE;
+
+  // Obtener resultados paginados
+  const movies = await collection.find(query).sort(sorted).skip(skip).limit(PAGE_SIZE).toArray();
+
+  // Renderizamos la vista pasando también currentPage y totalPages
   res.render("index.ejs", {
-    movies: movies,
-    genres: genres,
+    movies,
+    allGenres,
+    allTypes,
     title: "Movies",
+    filters: req.body,
+    currentPage: page,
+    totalPages
   });
-});
-
-//*********************************  Ruta para mostrar el formulario de añadir *********************************
+});//*********************************  Ruta para mostrar el formulario de añadir *********************************
 app.get("/movies/add-form", async (req, res) => {
   res.render("addForm.ejs");
 });
@@ -129,8 +143,6 @@ app.post("/movies/add-form", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
 
-  //  1 Obtener cada uno de los campos de req.body
-  console.log(req.body);
   const newMovie = {
     title: req.body.title,
     poster: req.body.urlImage,
@@ -183,3 +195,28 @@ async function bdClose() {
     console.log(err.message);
   }
 }
+
+async function getGenres() {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+  return await collection
+    .aggregate([
+      { $unwind: "$genres" },
+      { $group: { _id: "$genres" } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+}
+
+async function getTypes() {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+  return await collection
+    .aggregate([
+      { $match: { type: { $ne: null } } },
+      { $group: { _id: "$type" } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+}
+

@@ -7,91 +7,242 @@
     <link rel="stylesheet" href="https://unpkg.com/@picocss/pico@latest/css/pico.min.css">
     <title>MongoDB Movies</title>
     <style>
-        body{
+        body {
             padding: 50px;
+        }
+
+        /* Puedes mover esto a style.css */
+        .genres-container,
+        .types-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 0.5em;
+            margin-bottom: 1em;
+        }
+
+        .genre-btn,
+        .type-btn {
+            background: #222;
+            color: #eee;
+            border: 1px solid #444;
+            border-radius: 20px;
+            padding: 0.4em 1em;
+            cursor: pointer;
+            transition: background 0.2s, color 0.2s;
+        }
+
+        .genre-btn.selected,
+        .type-btn.selected {
+            background: #4e8cff;
+            color: #fff;
+            border-color: #4e8cff;
+        }
+
+        .genre-btn:focus,
+        .type-btn:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px #4e8cff55;
         }
     </style>
 </head>
 
 <body>
-    <div class="header">
-        <!-- <a href="/">Home</a> -->
-        <a href="/movies/add-form">New Image</a>
-    </div>
-    <main class="container">
-        <form action="/movies" method="POST">
-            <h1>MongoDB Movies</h1>
+    <% console.log('Filters:', filters); %>
+        <div class="header">
+            <!-- <a href="/">Home</a> -->
+            <a href="/movies/add-form">New Image</a>
+        </div>
+        <main class="container">
+            <form action="/movies" method="POST">
+                <h1>MongoDB Movies</h1>
 
-            <label for="keyword">Palabra Clave:</label>
-            <input type="text" id="keyword" name="keyword">
+                <label for="keyword">Palabra Clave:</label>
+                <input type="text" id="keyword" name="keyword" value="<%= filters.keyword %>">
 
-            <label for="genre">Género: </label>
-            <select id="genres" name="genres">
-                <option value="">Cualquier género</option>
-                    <% genres.forEach(genre=> { %>
-                <option value="<%= genre._id %>">
-                    <%= genre._id %>
-                </option>
-                <% }); %>
-            </select>
+                <% const selectedGenres=filters.genres ? (Array.isArray(filters.genres) ? filters.genres :
+                    filters.genres.split(',')) : []; %>
 
-            <label for="type">Tipo de filmación:</label>
-            <select id="type" name="type">
-                <option value="">Todos los tipos</option>
-                <option value="movie">Película</option>
-                <option value="series">Serie</option>
-            </select>
+                    <label>Géneros:</label>
+                    <div id="genres-container" class="genres-container">
+                        <% allGenres.forEach(genre=> { %>
+                            <button type="button"
+                                class="genre-btn<%= selectedGenres.includes(genre._id) ? ' selected' : '' %>"
+                                data-genre="<%= genre._id %>">
+                                <%= genre._id %>
+                            </button>
+                            <% }); %>
+                    </div>
 
-            <label for="startYear">Año de inicio:</label>
-            <input type="number" id="startYear" name="startYear" min="1900" max="2023">
+                    <input type="hidden" id="genres" name="genres"
+                        value="<%= filters.genres ? (Array.isArray(filters.genres) ? filters.genres.join(',') : filters.genres) : '' %>">
+                    <% const selectedTypes=filters.type ? (Array.isArray(filters.type) ? filters.type :
+                        filters.type.split(',')) : []; %>
 
-            <label for="endYear">Año de fin:</label>
-            <input type="number" id="endYear" name="endYear" min="1900" max="2023">
+                        <label>Tipos de filmación:</label>
+                        <div id="types-container" class="types-container">
+                            <% allTypes.forEach(type=> { %>
+                                <button type="button"
+                                    class="type-btn<%= selectedTypes.includes(type._id) ? ' selected' : '' %>"
+                                    data-type="<%= type._id %>">
+                                    <%= type._id %>
+                                </button>
+                                <% }); %>
+                        </div>
 
-            <label for="minRating">Calificación mínima:</label>
-            <input type="number" id="minRating" name="minRating" min="0" max="10" step="0.1">
+                        <input type="hidden" id="type" name="type"
+                            value="<%= filters.type ? (Array.isArray(filters.type) ? filters.type.join(',') : filters.type) : '' %>">
+<label for="startYear">Año de inicio:</label>
+<input type="number" id="startYear" name="startYear" min="1900" max="2023" value="<%= filters.startYear %>">
 
-            <label for="maxRating">Calificación máxima:</label>
-            <input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1">
+<label for="endYear">Año de fin:</label>
+<input type="number" id="endYear" name="endYear" min="1900" max="2023" value="<%= filters.endYear %>">
+<div id="yearError" style="color: red; font-size: 0.9em;"></div>
 
-            <label for="sort">Método de orden:</label>
-            <select id="sort" name="sort" onchange="window.location.href='/'">
-                <option value="1">Ascending</option>
-                <option value="-1">Descending</option>
-            </select>
+<label for="minRating">Calificación mínima:</label>
+<input type="number" id="minRating" name="minRating" min="0" max="10" step="0.1" value="<%= filters.minRating %>">
+
+<label for="maxRating">Calificación máxima:</label>
+<input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1" value="<%= filters.maxRating %>">
+<div id="ratingError" style="color: red; font-size: 0.9em;"></div>
+                        <label for="sort">Método de orden:</label>
+                        <select id="sort" name="sort">
+                            <option value="1">Ascending</option>
+                            <option value="-1">Descending</option>
+                        </select>
 
 
 
-            <button type="submit">Buscar</button>
-        </form>
-        <div class="movies">
-            <h2>Movies List</h2>
-            <% if (movies && movies.length> 0) { %>
-                <% movies.forEach(movie=> { %>
-                    <article>
-                        <header style="text-align: center;">
-                            <strong>
-                                <%= movie.title %>
-                            </strong>
-                        </header>
-                        <img src="<%= movie.poster %>" alt="Movie Poster" width="500"
-                            style="display: block; margin: 0 auto;">
-                        <ul>
-                            <li><strong>Género:</strong>
-                                <%= movie.genres.join(', ') %></li>
-                            <li><strong>Tipo:</strong> <%= movie.type %></li>
-                            <li><strong>Calificación:</strong> <%= movie.imdb.rating %></li>
-                            <li><strong>Año:</strong> <%= new Date(movie.released).toLocaleDateString() %></li>
-                        </ul>
-                        <footer>
-                            <%= movie.fullplot %> (<%= movie.year %>)
-                                    </foot>
-                    </article>
-                    <% }) %>
-                        <% } else { %>
-                            <p>No hay películas para mostrar</p>
-                            <% } %>
-    </main>
-</body>
+
+                        <button type="submit">Buscar</button>
+            </form>
+<div class="movies">
+  <h2>Movies List</h2>
+
+  <% if (movies && movies.length > 0) { %>
+    <% movies.forEach(movie => { %>
+      <article>
+        <header style="text-align: center;">
+          <strong><%= movie.title %></strong>
+        </header>
+
+        <!-- Poster -->
+        <% if (movie.poster) { %>
+          <img src="<%= movie.poster %>" alt="Movie Poster" width="500"
+            style="display: block; margin: 0 auto;">
+        <% } %>
+
+        <ul>
+          <!-- Géneros -->
+          <% if (movie.genres && Array.isArray(movie.genres) && movie.genres.length > 0) { %>
+            <li><strong>Género:</strong> <%= movie.genres.join(', ') %></li>
+          <% } %>
+
+          <!-- Tipo -->
+          <% if (movie.type) { %>
+            <li><strong>Tipo:</strong> <%= movie.type %></li>
+          <% } %>
+
+          <!-- Calificación -->
+          <% if (movie.imdb && typeof movie.imdb.rating !== 'undefined') { %>
+            <li><strong>Calificación:</strong> <%= movie.imdb.rating %></li>
+          <% } %>
+
+          <!-- Año -->
+          <% if (movie.released) { %>
+            <li><strong>Año:</strong> <%= new Date(movie.released).toLocaleDateString() %></li>
+          <% } else if (movie.year) { %>
+            <li><strong>Año:</strong> <%= movie.year %></li>
+          <% } %>
+        </ul>
+
+        <!-- Sinopsis -->
+        <% if (movie.fullplot || movie.plot) { %>
+          <footer>
+            <%= movie.fullplot || movie.plot %>
+            <% if (movie.year) { %> (<%= movie.year %>) <% } %>
+          </footer>
+        <% } %>
+
+      </article>
+    <% }) %>
+  <% } else { %>
+    <p>No hay películas para mostrar</p>
+  <% } %>
+</div>    </main>
+
+    
+
+<script>
+function validateMinMax(minInputId, maxInputId, errorMsgId) {
+    const minInput = document.getElementById(minInputId);
+    const maxInput = document.getElementById(maxInputId);
+    const errorDiv = document.getElementById(errorMsgId);
+
+    function checkValues() {
+      const min = parseFloat(minInput.value);
+      const max = parseFloat(maxInput.value);
+
+      if (!isNaN(min) && !isNaN(max)) {
+        if (min > max) {
+          errorDiv.textContent = `El ${minInputId} debe ser menor o igual que el ${maxInputId}.`;
+        } else {
+          errorDiv.textContent = "";
+        }
+      } else {
+        errorDiv.textContent = "";
+      }
+    }
+
+    // Validación al escribir
+    minInput.addEventListener("input", checkValues);
+    maxInput.addEventListener("input", checkValues);
+  }
+
+  // Aplicamos la validación visual a ambos pares de campos
+  validateMinMax("startYear", "endYear", "yearError");
+  validateMinMax("minRating", "maxRating", "ratingError");
+  
+  document.addEventListener('DOMContentLoaded', function () {
+    // Botones de géneros
+    const genreBtns = document.querySelectorAll('.genre-btn');
+    const genresInput = document.getElementById('genres');
+
+    genreBtns.forEach(btn => {
+      btn.addEventListener('click', function () {
+        btn.classList.toggle('selected');
+        const selected = Array.from(document.querySelectorAll('.genre-btn.selected'))
+          .map(b => b.dataset.genre);
+        genresInput.value = selected.join(',');
+      });
+    });
+
+    const currentGenres = genresInput.value ? genresInput.value.split(',') : [];
+    genreBtns.forEach(btn => {
+      if (currentGenres.includes(btn.dataset.genre)) {
+        btn.classList.add('selected');
+      }
+    });
+
+    // Botones de tipos
+    const typeBtns = document.querySelectorAll('.type-btn');
+    const typesInput = document.getElementById('type');
+
+    typeBtns.forEach(btn => {
+      btn.addEventListener('click', function () {
+        btn.classList.toggle('selected');
+        const selected = Array.from(document.querySelectorAll('.type-btn.selected'))
+          .map(b => b.dataset.type);
+        typesInput.value = selected.join(',');
+      });
+    });
+
+    const currentTypes = typesInput.value ? typesInput.value.split(',') : [];
+    typeBtns.forEach(btn => {
+      if (currentTypes.includes(btn.dataset.type)) {
+        btn.classList.add('selected');
+      }
+    });
+  });
+</script></body>
 
 </html>
