@@ -64,8 +64,6 @@ app.post("/movies", async (req, res) => {
 
   // Extraemos filtros del formulario
   const { keyword, genres, type, startYear, endYear, minRating, maxRating } = req.body;
-  const page = parseInt(req.body.page) || 1; // Página actual (por defecto: 1)
-  const PAGE_SIZE = 10;
 
   const allGenres = await getGenres();
   const allTypes = await getTypes();
@@ -112,26 +110,13 @@ app.post("/movies", async (req, res) => {
       $lte: parseFloat(maxRating),
     };
   }
-
-  // Contamos el total de resultados con filtro aplicado
-  const total = await collection.countDocuments(query);
-
-  // Calcular límites y offset
-  const totalPages = Math.ceil(total / PAGE_SIZE);
-  const skip = (page - 1) * PAGE_SIZE;
-
-  // Obtener resultados paginados
-  const movies = await collection.find(query).sort(sorted).skip(skip).limit(PAGE_SIZE).toArray();
-
-  // Renderizamos la vista pasando también currentPage y totalPages
+  const movies = await collection.find(query).sort(sorted).limit(10).toArray();
   res.render("index.ejs", {
-    movies,
+    movies: movies,
     allGenres,
     allTypes,
     title: "Movies",
     filters: req.body,
-    currentPage: page,
-    totalPages
   });
 });//*********************************  Ruta para mostrar el formulario de añadir *********************************
 app.get("/movies/add-form", async (req, res) => {
@@ -154,6 +139,33 @@ app.post("/movies/add-form", async (req, res) => {
     }
   } catch (e) {
     console.log("Error al añadir la nueva película", e.message);
+  }
+});
+
+// ********************************* Eliminar *********************************
+app.get("/delete", async (req, res) => {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+
+  const { _id } = req.query;
+
+  if (!_id) {
+    return res.status(400).send("Falta el ID de la película.");
+  }
+
+  try {
+    const result = await collection.deleteOne({
+      "_id": { "$oid": _id }
+    });
+
+    if (result.deletedCount === 1) {
+      res.redirect("/");
+    } else {
+      res.send("No se encontró la película con ese ID.");
+    }
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error al eliminar la película.");
   }
 });
 

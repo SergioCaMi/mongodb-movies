@@ -162,7 +162,8 @@
             <% if (movie.year) { %> (<%= movie.year %>) <% } %>
           </footer>
         <% } %>
-
+<footer style="margin-top: 1em;">
+<a href="/delete?_id=<%= movie._id_str %>" onclick="return confirm('¿Estás seguro?')">Eliminar</a></footer>
       </article>
     <% }) %>
   <% } else { %>
