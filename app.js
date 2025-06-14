@@ -13,6 +13,7 @@ const path = require("path");
 
 // Importar MongoClient de mongodb
 const { MongoClient } = require("mongodb");
+const { ObjectId } = require("mongodb");//*************
 const uri =
   "mongodb+srv://sergiocami84:Msg--300183@cluster0.mo4mc0w.mongodb.net/?retryWrites=true&w=majority";
 const client = new MongoClient(uri);
@@ -135,7 +136,7 @@ app.post("/movies/add-form", async (req, res) => {
   try {
     const resultado = await collection.insertOne(newMovie);
     if (resultado.acknowledged) {
-      console.log("Película añadida correctamente");
+  res.render("addForm.ejs", {msg: `${newMovie.title} se ha añadido correctamente`, color: 'green'});
     }
   } catch (e) {
     console.log("Error al añadir la nueva película", e.message);
@@ -150,13 +151,16 @@ app.get("/delete", async (req, res) => {
   const { _id } = req.query;
 
   if (!_id) {
-    return res.status(400).send("Falta el ID de la película.");
-  }
+res.status(400).render("error", {
+  title: "ID requerido",
+  code: "400",
+  message: "Falta el ID de la película."
+});  }
 
   try {
     const result = await collection.deleteOne({
-      "_id": { "$oid": _id }
-    });
+  _id: new ObjectId(_id)
+});
 
     if (result.deletedCount === 1) {
       res.redirect("/");
@@ -171,9 +175,12 @@ app.get("/delete", async (req, res) => {
 
 // ********************************* Ruta 404 para endpoints no definidos *********************************
 app.use((req, res) => {
-  res.status(404).send("Ruta no encontrada");
+  res.status(404).render("error", {
+    title: "No encontrado",
+    code: "404",
+    message: "La página que buscas no existe."
+  });
 });
-
 // ********************************* Manejo de errores global *********************************
 
 app.use((err, req, res, next) => {
