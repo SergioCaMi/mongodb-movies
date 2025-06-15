@@ -1,0 +1,493 @@
+/* ********** Reset Básico ********** */
+* {
+  box-sizing: border-box;
+  margin: 0;
+  padding: 0;
+}
+
+/* ********** Estilos Globales del Body ********** */
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #0d0d0d;
+  color: #f5f5f5;
+}
+
+/* ********** Página de Error ********** */
+.error-page {
+  background: url('https://wallpapers.com/images/hd/movie-poster-background-jd1c45cjm7vba7gg.jpg')  no-repeat center center fixed;
+  background-size: cover;
+  font-family: 'Open Sans', sans-serif;
+  color: #fff;
+  height: 100vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  position: relative;
+}
+
+.overlay {
+  background-color: rgba(0, 0, 0, 0.7);
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+
+.error-container {
+  z-index: 2;
+  max-width: 600px;
+  padding: 30px;
+  animation: fadeInUp 1s ease-out;
+}
+
+.error-container h1 {
+  font-family: 'Roboto Slab', serif;
+  font-size: 4rem;
+  margin-bottom: 10px;
+}
+
+.error-container p {
+  font-size: 1.2rem;
+  margin-bottom: 20px;
+  opacity: 0.9;
+}
+
+a.button-back {
+  display: inline-block;
+  padding: 10px 20px;
+  background-color: #e50914;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
+}
+
+a.button-back:hover {
+  background-color: #b0040f;
+}
+
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ********** Header Principal ********** */
+.header {
+  background-color: #1a1a1a;
+  padding: 1rem 2rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  border-bottom: 1px solid #333;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  z-index: 1000;
+}
+
+.header a {
+  color: #ffffffcc;
+  text-decoration: none;
+  font-weight: bold;
+  transition: color 0.3s ease;
+}
+
+.header a:hover {
+  color: #4e8cff;
+}
+
+/* ********** Contenedor Principal ********** */
+.page-container {
+  max-width: 90%;
+  margin-left: auto;
+  margin-right: auto;
+  display: flex;
+  gap: 2rem;
+  padding-bottom: 2rem;
+  margin-top: 70px; /* Deja espacio para el header fijo */
+}
+
+/* ********** Barra Lateral - Filtros ********** */
+.filters {
+  position: fixed;
+  top: 70px;
+  left: 0rem;
+  width: 300px;
+  flex-shrink: 0;
+  background-color: #1a1a1a;
+  padding: 1rem;
+  border-radius: 10px;
+  border-right: 1px solid #333;
+  height: calc(100vh - 80px);
+  overflow-y: auto;
+}
+
+.filters h2 {
+  font-size: 1rem;
+  margin-bottom: 0.5rem;
+}
+
+.filters label {
+  font-size: 0.9rem;
+  display: block;
+  margin-top: 0.5rem;
+}
+
+.filters input[type="text"],
+.filters input[type="number"],
+.filters select,
+.filters input[type="url"] {
+  width: 100%;
+  padding: 0.4rem;
+  margin-top: 0.3rem;
+  border-radius: 5px;
+  border: 1px solid #444;
+  background-color: #222;
+  color: #fff;
+  font-size: 0.9rem;
+}
+
+.filters .filter-group {
+  margin-bottom: 1rem;
+}
+
+.filters .genres-container,
+.filters .types-container {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3em;
+  margin-top: 0.3rem;
+}
+.filter-row {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.filter-row .filter-group {
+  flex: 1;
+}
+.genre-btn,
+.type-btn {
+  background: #222;
+  color: #eee;
+  border: 1px solid #444;
+  border-radius: 20px;
+  padding: 0.3em 0.6em;
+  cursor: pointer;
+  font-size: 0.8rem;
+  transition: background 0.2s, color 0.2s;
+}
+
+.genre-btn.selected,
+.type-btn.selected {
+  background: #4e8cff;
+  color: white;
+  border-color: #4e8cff;
+}
+
+.error-message {
+  color: red;
+  font-size: 0.75rem;
+  margin-top: 0.2rem;
+}
+
+/* ********** Contenido Principal (con scroll) ********** */
+.container {
+  margin-left: 300px; 
+  padding: 1rem 2rem;
+  min-height: 100vh;
+  overflow-y: auto;
+}
+.movies-list {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.movie-card {
+  display: flex;
+  background-color: #1f1f1f;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.movie-poster {
+  width: 200px;
+  height: 300px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #111;
+}
+
+.movie-poster img {
+  max-width: 100%;
+  max-height: 100%;
+  object-fit: cover;
+}
+
+.movie-info {
+  padding: 1rem 1.5rem;
+  flex: 1;
+}
+
+.movie-info h3 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+  font-size: 1.4rem;
+}
+
+.movie-info ul {
+  list-style: none;
+  padding-left: 0;
+  margin-bottom: 1rem;
+}
+
+.movie-info li {
+  margin-bottom: 0.4rem;
+  font-size: 0.95rem;
+}
+
+.movie-description {
+  font-size: 0.9rem;
+  color: #aaa;
+  margin-bottom: 1rem;
+}
+
+footer a {
+  color: #ff4d4d;
+  text-decoration: none;
+  font-size: 0.9rem;
+}
+
+footer a:hover {
+  text-decoration: underline;
+}
+
+/* ********** Botones Personalizados ********** */
+#Buscar {
+  background-color: #4e8cff;
+  color: white;
+  border: none;
+  padding: 0.6rem 1.2rem;
+  font-size: 1rem;
+  font-weight: bold;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: background-color 0.3s ease, transform 0.2s ease;
+  display: block;
+  width: 100%;
+  text-align: center;
+  margin: 1rem auto 0;
+}
+
+#Buscar:hover {
+  background-color: #3a70db;
+  transform: translateY(-2px);
+}
+
+#Buscar:active {
+  transform: scale(0.98);
+}
+
+.btn-delete {
+  display: inline-block;
+  padding: 0.4em 0.8em;
+  background-color: #ff4d4d;
+  color: white;
+  text-decoration: none;
+  border-radius: 5px;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.btn-delete:hover {
+  background-color: #e60000;
+}
+
+.btn-add {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4em;
+  background-color: #4e8cff;
+  color: white;
+  padding: 0.5em 1em;
+  border-radius: 5px;
+  font-size: 0.95rem;
+  text-decoration: none;
+  font-weight: bold;
+  transition: background-color 0.3s ease;
+}
+
+.btn-add:hover {
+  background-color: #3a70db;
+}
+
+/* ********** Elementos Dinámicos (No hay películas) ********** */
+.no-movies-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  min-height: 300px;
+  background-color: rgba(0, 0, 0, 0.7);
+  border-radius: 10px;
+  margin: 2rem auto;
+  max-width: 800px;
+  padding: 2rem;
+  animation: fadeIn 0.6s ease-in-out;
+}
+
+.no-movies-message {
+  color: #fff;
+  font-size: 1.3rem;
+  text-align: center;
+  font-weight: 500;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ********** Paginación ********** */
+.pagination {
+  display: flex;
+  justify-content: center;
+  gap: 10px;
+  margin-top: 2rem;
+  flex-wrap: wrap;
+}
+
+.pagination button {
+  padding: 0.5rem 1rem;
+  background-color: #222;
+  color: #fff;
+  border: 1px solid #444;
+  border-radius: 5px;
+  cursor: pointer;
+  font-size: 0.9rem;
+  transition: background-color 0.3s ease;
+}
+
+.pagination button:hover {
+  background-color: #4e8cff;
+}
+
+.pagination button.active {
+  background-color: #4e8cff;
+  border-color: #4e8cff;
+  color: #fff;
+  font-weight: bold;
+}
+
+/* ********** Formularios ********** */
+.form-container {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 2rem;
+  border-radius: 10px;
+  max-width: 600px;
+  margin: auto;
+}
+
+.form-container h2 {
+  margin-bottom: 1rem;
+  font-size: 1.5rem;
+}
+
+.form-container label {
+  display: block;
+  margin-top: 1rem;
+  font-weight: bold;
+}
+
+.form-container input,
+.form-container textarea {
+  width: 100%;
+  padding: 0.5rem;
+  border-radius: 5px;
+  border: none;
+  margin-top: 0.3rem;
+  font-size: 1em;
+}
+
+.form-container button {
+  margin-top: 1.5rem;
+}
+
+.form-container .message-box {
+  margin-bottom: 1rem;
+  font-weight: bold;
+  color: green;
+}
+
+/* ********** Animaciones ********** */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* ********** Layout Responsivo ********** */
+@media (max-width: 900px) {
+  .header {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .header a {
+    margin-top: 0.5rem;
+  }
+
+  .page-container {
+    flex-direction: column;
+    margin-top: 100px;
+  }
+
+  .filters {
+    position: static;
+    width: 100%;
+    border-right: none;
+    border-bottom: 1px solid #333;
+    margin-bottom: 2rem;
+    height: auto;
+    overflow-y: visible;
+  }
+
+  .container {
+    margin-left: 0;
+  }
+}

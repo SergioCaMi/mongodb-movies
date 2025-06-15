@@ -1,0 +1,71 @@
+    </main>
+
+    <!-- Scripts -->
+    <script>
+      function validateMinMax(minInputId, maxInputId, errorMsgId) {
+        const minInput = document.getElementById(minInputId);
+        const maxInput = document.getElementById(maxInputId);
+        const errorDiv = document.getElementById(errorMsgId);
+
+        function checkValues() {
+          const min = parseFloat(minInput.value);
+          const max = parseFloat(maxInput.value);
+
+          if (!isNaN(min) && !isNaN(max)) {
+            if (min > max) {
+              errorDiv.textContent = `El ${minInputId} debe ser menor o igual que el ${maxInputId}.`;
+            } else {
+              errorDiv.textContent = "";
+            }
+          } else {
+            errorDiv.textContent = "";
+          }
+        }
+
+        minInput.addEventListener("input", checkValues);
+        maxInput.addEventListener("input", checkValues);
+      }
+
+      validateMinMax("startYear", "endYear", "yearError");
+      validateMinMax("minRating", "maxRating", "ratingError");
+
+      document.addEventListener('DOMContentLoaded', function () {
+        const genreBtns = document.querySelectorAll('.genre-btn');
+        const genresInput = document.getElementById('genres');
+        const currentGenres = genresInput.value ? genresInput.value.split(',') : [];
+
+        genreBtns.forEach(btn => {
+          btn.addEventListener('click', function () {
+            btn.classList.toggle('selected');
+            const selected = Array.from(document.querySelectorAll('.genre-btn.selected')).map(b => b.dataset.genre);
+            genresInput.value = selected.join(',');
+          });
+        });
+
+        genreBtns.forEach(btn => {
+          if (currentGenres.includes(btn.dataset.genre)) {
+            btn.classList.add('selected');
+          }
+        });
+
+        const typeBtns = document.querySelectorAll('.type-btn');
+        const typesInput = document.getElementById('type');
+        const currentTypes = typesInput.value ? typesInput.value.split(',') : [];
+
+        typeBtns.forEach(btn => {
+          btn.addEventListener('click', function () {
+            btn.classList.toggle('selected');
+            const selected = Array.from(document.querySelectorAll('.type-btn.selected')).map(b => b.dataset.type);
+            typesInput.value = selected.join(',');
+          });
+        });
+
+        typeBtns.forEach(btn => {
+          if (currentTypes.includes(btn.dataset.type)) {
+            btn.classList.add('selected');
+          }
+        });
+      });
+    </script>
+  </body>
+</html>

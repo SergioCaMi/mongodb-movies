@@ -1,0 +1,73 @@
+<!-- Filtros -->
+<aside class="filters">
+  <form action="/movies" method="POST">
+    <h2>Search</h2>
+
+    <div class="filter-group">
+      <label for="keyword">Keyword:</label>
+      <input type="text" id="keyword" name="keyword" value="<%= filters.keyword %>">
+    </div>
+
+    <% const selectedGenres = filters.genres ? (Array.isArray(filters.genres) ? filters.genres : filters.genres.split(',')) : []; %>
+    <div class="filter-group">
+      <label>Géneros:</label>
+      <div id="genres-container" class="genres-container">
+        <% allGenres.forEach(genre => { %>
+          <button type="button" class="genre-btn<%= selectedGenres.includes(genre._id) ? ' selected' : '' %>" data-genre="<%= genre._id %>">
+            <%= genre._id %>
+          </button>
+        <% }) %>
+      </div>
+      <input type="hidden" id="genres" name="genres"
+        value="<%= filters.genres ? (Array.isArray(filters.genres) ? filters.genres.join(',') : filters.genres) : '' %>">
+    </div>
+
+    <% const selectedTypes = filters.type ? (Array.isArray(filters.type) ? filters.type : filters.type.split(',')) : []; %>
+    <div class="filter-group">
+      <label>Tipos:</label>
+      <div id="types-container" class="types-container">
+        <% allTypes.forEach(type => { %>
+          <button type="button" class="type-btn<%= selectedTypes.includes(type._id) ? ' selected' : '' %>" data-type="<%= type._id %>">
+            <%= type._id %>
+          </button>
+        <% }) %>
+      </div>
+      <input type="hidden" id="type" name="type"
+        value="<%= filters.type ? (Array.isArray(filters.type) ? filters.type.join(',') : filters.type) : '' %>">
+    </div>
+
+<!-- Año inicio y fin en una misma línea -->
+<div class="filter-row">
+  <div class="filter-group">
+    <label for="startYear">Año inicio:</label>
+    <input type="number" id="startYear" name="startYear" min="1900" max="2023" value="<%= filters.startYear %>">
+  </div>
+  <div class="filter-group">
+    <label for="endYear">Año fin:</label>
+    <input type="number" id="endYear" name="endYear" min="1900" max="2023" value="<%= filters.endYear %>">
+    <small id="yearError" class="error-message"></small>
+  </div>
+</div>
+
+<!-- Min y Max rating en otra línea -->
+<div class="filter-row">
+  <div class="filter-group">
+    <label for="minRating">Min rating:</label>
+    <input type="number" id="minRating" name="minRating" min="0" max="10" step="0.1" value="<%= filters.minRating %>">
+  </div>
+  <div class="filter-group">
+    <label for="maxRating">Max rating:</label>
+    <input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1" value="<%= filters.maxRating %>">
+    <small id="ratingError" class="error-message"></small>
+  </div>
+</div>
+<div class="filter-group">
+  <label for="sort">Sort:</label>
+  <select id="sort" name="sort">
+    <option value="1" <%= filters.sort == "1" ? "selected" : "" %>>Ascending</option>
+    <option value="-1" <%= filters.sort == "-1" ? "selected" : "" %>>Descending</option>
+  </select>
+</div>
+    <button type="submit" id="Buscar">Buscar</button>
+  </form>
+</aside>
