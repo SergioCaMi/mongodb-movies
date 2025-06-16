@@ -1,13 +1,11 @@
 <%- include('partials/header') %>
-
 <%- include('partials/aside') %>
 
-<!-- Contenido principal -->
 <section class="container">
   <div class="form-container">
     <h2>Agregar Nueva Película</h2>
 
-    <% if (typeof msg !== 'undefined' && msg) { %>
+    <% if (msg) { %>
       <div class="message-box" style="color: <%= color %>;">
         <%= msg %>
       </div>
@@ -23,6 +21,9 @@
       <label for="type">Tipo*:</label>
       <input type="text" id="type" name="type" placeholder="Ej: movie" required>
 
+      <label for="director">Director*:</label>
+      <input type="text" id="director" name="director" placeholder="Ej: Christopher Nolan" required>
+
       <label for="genres">Géneros (separados por comas):</label>
       <input type="text" id="genres" name="genres" placeholder="Ej: Drama,Action">
 
@@ -32,7 +33,7 @@
       <label for="synopsis">Sinopsis:</label>
       <textarea id="synopsis" name="synopsis" rows="4" placeholder="Describe brevemente la película..."></textarea>
 
-      <button type="submit" id="Buscar">Añadir Película</button>
+      <button type="submit" class="btn-submit">➕ Añadir Película</button>
       <p>* Campos obligatorios</p>
     </form>
   </div>

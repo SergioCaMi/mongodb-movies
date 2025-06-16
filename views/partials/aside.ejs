@@ -5,7 +5,7 @@
 
     <div class="filter-group">
       <label for="keyword">Keyword:</label>
-      <input type="text" id="keyword" name="keyword" value="<%= filters.keyword %>">
+      <input type="text" id="keyword" name="keyword" value="<%= filters.keyword || '' %>">
     </div>
 
     <% const selectedGenres = filters.genres ? (Array.isArray(filters.genres) ? filters.genres : filters.genres.split(',')) : []; %>
@@ -36,38 +36,57 @@
         value="<%= filters.type ? (Array.isArray(filters.type) ? filters.type.join(',') : filters.type) : '' %>">
     </div>
 
-<!-- Año inicio y fin en una misma línea -->
-<div class="filter-row">
-  <div class="filter-group">
-    <label for="startYear">Año inicio:</label>
-    <input type="number" id="startYear" name="startYear" min="1900" max="2023" value="<%= filters.startYear %>">
-  </div>
-  <div class="filter-group">
-    <label for="endYear">Año fin:</label>
-    <input type="number" id="endYear" name="endYear" min="1900" max="2023" value="<%= filters.endYear %>">
-    <small id="yearError" class="error-message"></small>
-  </div>
-</div>
+    <% 
+      const selectedDirector = filters.director ? filters.director : '';
+    %>
+    <div class="filter-group">
+      <label for="director">Director:</label>
+      <select id="director" name="director" class="director-select">
+        <option value="">-- Todos --</option>
+        <% allDirectors.forEach(director => { %>
+          <option value="<%= director._id %>" <%= director._id === selectedDirector ? 'selected' : '' %>>
+            <%= director._id %>
+          </option>
+        <% }) %>
+      </select>
+    </div>
 
-<!-- Min y Max rating en otra línea -->
-<div class="filter-row">
-  <div class="filter-group">
-    <label for="minRating">Min rating:</label>
-    <input type="number" id="minRating" name="minRating" min="0" max="10" step="0.1" value="<%= filters.minRating %>">
-  </div>
-  <div class="filter-group">
-    <label for="maxRating">Max rating:</label>
-    <input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1" value="<%= filters.maxRating %>">
-    <small id="ratingError" class="error-message"></small>
-  </div>
-</div>
-<div class="filter-group">
-  <label for="sort">Sort:</label>
-  <select id="sort" name="sort">
-    <option value="1" <%= filters.sort == "1" ? "selected" : "" %>>Ascending</option>
-    <option value="-1" <%= filters.sort == "-1" ? "selected" : "" %>>Descending</option>
-  </select>
-</div>
-    <button type="submit" id="Buscar">Buscar</button>
+    <!-- Año inicio y fin -->
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="startYear">Año inicio:</label>
+        <input type="number" id="startYear" name="startYear" min="1900" max="2100" value="<%= filters.startYear || '' %>">
+      </div>
+      <div class="filter-group">
+        <label for="endYear">Año fin:</label>
+        <input type="number" id="endYear" name="endYear" min="1900" max="2100" value="<%= filters.endYear || '' %>">
+        <small id="yearError" class="error-message"></small>
+      </div>
+    </div>
+
+    <!-- Rating -->
+    <div class="filter-row">
+      <div class="filter-group">
+        <label for="minRating">Min rating:</label>
+        <input type="number" id="minRating" name="minRating" min="0" max="10" step="0.1" value="<%= filters.minRating || '' %>">
+      </div>
+      <div class="filter-group">
+        <label for="maxRating">Max rating:</label>
+        <input type="number" id="maxRating" name="maxRating" min="0" max="10" step="0.1" value="<%= filters.maxRating || '' %>">
+        <small id="ratingError" class="error-message"></small>
+      </div>
+    </div>
+
+    <!-- Ordenamiento -->
+    <div class="filter-group">
+      <label for="sort">Ordenar por año:</label>
+      <select id="sort" name="sort">
+        <option value="1" <%= filters.sort == "1" ? "selected" : "" %>>Ascendente</option>
+        <option value="-1" <%= filters.sort == "-1" ? "selected" : "" %>>Descendente</option>
+      </select>
+    </div>
+
+    <!-- Botón de búsqueda -->
+    <button type="submit" id="Buscar" class="btn-submit">Buscar</button>
   </form>
 </aside>

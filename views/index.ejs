@@ -1,5 +1,6 @@
 <%- include('partials/header') %>
 <%- include('partials/aside') %>
+
 <section class="container">
   <div class="movies-list">
     <% if (movies && movies.length > 0) { %>
@@ -18,6 +19,10 @@
             <ul>
               <% if (movie.genres && Array.isArray(movie.genres) && movie.genres.length > 0) { %>
                 <li><strong>Género:</strong> <%= movie.genres.join(', ') %></li>
+              <% } %>
+
+              <% if (movie.directors && movie.directors.length > 0) { %>
+                <li><strong>Director:</strong> <%= movie.directors.join(', ') %></li>
               <% } %>
 
               <% if (movie.type) { %>
@@ -39,16 +44,47 @@
               <% } %>
 
               <footer>
-                <a href="/delete?_id=<%= movie._id.toString() %>" onclick="return confirm('¿Estás seguro?')" class="btn-delete">🗑️ Eliminar</a>
+                <% const encodedFilters = encodeURIComponent(JSON.stringify(filters)); %>
+                <a href="/delete?_id=<%= movie._id.toString() %>&filters=<%= encodedFilters %>" 
+                   onclick="return confirm('¿Estás seguro?')" 
+                   class="btn-delete">
+                  🗑️ Eliminar
+                </a>
               </footer>
             </ul>
           </div>
         </article>
       <% }) %>
+
+      <!-- Paginación -->
+      <% if (totalPages > 1) { %>
+        <div class="pagination">
+          <div class="pagination-controls">
+            <% const filtersEncoded = encodeURIComponent(JSON.stringify(filters)); %>
+
+            <% if (currentPage > 1) { %>
+              <a href="/movies?page=<%= currentPage - 1 %>&filters=<%= filtersEncoded %>" class="btn-pagination prev">⬅️ Página anterior</a>
+            <% } else { %>
+              <span class="btn-pagination prev disabled">⬅️ Página anterior</span>
+            <% } %>
+
+            <span class="page-info">Página <%= currentPage %> de <%= totalPages %></span>
+
+            <% if (currentPage < totalPages) { %>
+              <a href="/movies?page=<%= currentPage + 1 %>&filters=<%= filtersEncoded %>" class="btn-pagination next">Página siguiente ➡️</a>
+            <% } else { %>
+              <span class="btn-pagination next disabled">Página siguiente ➡️</span>
+            <% } %>
+          </div>
+        </div>
+      <% } %>
+
     <% } else { %>
       <div class="no-movies-container">
         <p class="no-movies-message">No hay películas para mostrar</p>
       </div>
     <% } %>
   </div>
-</section><%- include('partials/footer') %>
+</section>
+
+<%- include('partials/footer') %>

@@ -64,23 +64,42 @@ app.get("/", async (req, res) => {
 
   const allGenres = await getGenres();
   const allTypes = await getTypes();
+  const allDirectors = await getDirectors();
 
   res.render("index.ejs", {
     movies,
     allGenres,
     allTypes,
+    allDirectors,
     title: "Movies",
     filters: {},
+    currentPage: 1,
+    totalPages: 1,
+    totalResults: movies.length,
   });
 });
 
 // ********************************* Ruta para buscar películas *********************************
-app.post("/movies", async (req, res) => {
+app.post("/movies", handleMoviesRequest);
+app.get("/movies", handleMoviesRequest);
+
+async function handleMoviesRequest(req, res) {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
 
-  // Recibir filtros del formulario
-  const { keyword, genres, type, startYear, endYear, minRating, maxRating, sort } = req.body;
+  const source = req.method === "POST" ? req.body : req.query;
+  const {
+    director,
+    keyword,
+    genres,
+    type,
+    startYear,
+    endYear,
+    minRating,
+    maxRating,
+    sort,
+    page = 1,
+  } = source;
 
   let query = {};
   let order = { released: -1 }; // Orden por defecto
@@ -133,6 +152,10 @@ app.post("/movies", async (req, res) => {
     }
   }
 
+  if (director) {
+    query.directors = { $in: [director] };
+  }
+
   // Manejo del ordenamiento
   if (sort === "1" || sort === "-1") {
     order = { released: Number(sort) };
@@ -140,36 +163,56 @@ app.post("/movies", async (req, res) => {
     order = { released: -1 }; // Por defecto descending
   }
 
+  const limit = 10;
+  const pageNumber = Math.max(parseInt(page), 1);
+  const skip = (pageNumber - 1) * limit;
+
   try {
-    const movies = await collection.find(query).sort(order).limit(15).toArray();
+    const totalResults = await collection.countDocuments(query);
+    const totalPages = Math.ceil(totalResults / limit);
+
+    const movies = await collection
+      .find(query)
+      .sort(order)
+      .skip(skip)
+      .limit(limit)
+      .toArray();
+
     const allGenres = await getGenres();
     const allTypes = await getTypes();
+    const allDirectors = await getDirectors();
 
     res.render("index.ejs", {
       movies,
       allGenres,
       allTypes,
+      allDirectors,
       title: "Movies",
-      filters: req.body,
+      filters: source,
+      currentPage: pageNumber,
+      totalPages,
+      totalResults,
     });
   } catch (e) {
     console.error("Error al ejecutar la búsqueda:", e.message);
     res.status(500).send("Error al cargar las películas.");
   }
-});
+}
 
 // *********************************  Ruta para mostrar el formulario de añadir *********************************
 app.get("/movies/add-form", async (req, res) => {
-  const allGenres = await getGenres(); // Función ya definida
-  const allTypes = await getTypes();   // Función ya definida
+  const allGenres = await getGenres();
+  const allTypes = await getTypes();
+  const allDirectors = await getDirectors();
 
   res.render("addForm.ejs", {
     allGenres,
     allTypes,
+    allDirectors,
     title: "Agregar Película",
     filters: {}, // No hay filtros activos en este formulario
-    msg: null,   // Para mensajes de éxito/error (se pasa si los hay)
-    color: null, // Color del mensaje (ej: green, red)
+    msg: null,
+    color: null,
   });
 });
 
@@ -178,13 +221,14 @@ app.post("/movies/add-form", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
 
-  const { title, year, type, genres, urlImage, synopsis } = req.body;
+  const { title, year, type, genres, urlImage, synopsis, director } = req.body;
 
   const newMovie = {
     title,
     year: year ? parseInt(year) : undefined,
     type,
-    genres: genres ? genres.split(",").map(g => g.trim()) : [],
+    genres: genres ? genres.split(",").map((g) => g.trim()) : [],
+    directors: director ? [director] : [],
     poster: urlImage,
     plot: synopsis,
   };
@@ -195,6 +239,7 @@ app.post("/movies/add-form", async (req, res) => {
       res.render("addForm.ejs", {
         allGenres: await getGenres(),
         allTypes: await getTypes(),
+        allDirectors: await getDirectors(),
         title: "Agregar Película",
         filters: {},
         msg: `${newMovie.title} se ha añadido correctamente`,
@@ -206,6 +251,7 @@ app.post("/movies/add-form", async (req, res) => {
     res.status(500).render("addForm.ejs", {
       allGenres: await getGenres(),
       allTypes: await getTypes(),
+      allDirectors: await getDirectors(),
       title: "Agregar Película",
       filters: {},
       msg: "Hubo un error al agregar la película.",
@@ -213,12 +259,13 @@ app.post("/movies/add-form", async (req, res) => {
     });
   }
 });
+
 // ********************************* Eliminar *********************************
 app.get("/delete", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
 
-  const { _id } = req.query;
+  const { _id, filters } = req.query;
 
   if (!_id) {
     return res.status(400).render("error", {
@@ -234,9 +281,14 @@ app.get("/delete", async (req, res) => {
     });
 
     if (result.deletedCount === 1) {
-      res.redirect("/");
+      if (filters) {
+        const encodedFilters = encodeURIComponent(filters);
+        res.redirect(`/movies?filters=${encodedFilters}`);
+      } else {
+        res.redirect("/");
+      }
     } else {
-      res.send("No se encontró la película con ese ID.");
+      res.status(404).send("No se encontró la película con ese ID.");
     }
   } catch (err) {
     console.error(err);
@@ -256,11 +308,9 @@ app.use((req, res) => {
 // ********************************* Manejo de errores global *********************************
 app.use((err, req, res, next) => {
   console.error(err);
-  res
-    .status(500)
-    .send(
-      '<p>Ups! La operación ha fallado. Hemos informado a los desarrolladores. Vuelve a probarlo más tarde. <a href="/">Volver a la home</a></p>'
-    );
+  res.status(500).send(
+    '<p>Ups! La operación ha fallado. Hemos informado a los desarrolladores. Vuelve a probarlo más tarde. <a href="/">Volver a la home</a></p>'
+  );
 });
 
 // ********************************* Funciones *********************************
@@ -276,7 +326,6 @@ async function getGenres() {
     .toArray();
 }
 
-
 async function getTypes() {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
@@ -284,6 +333,20 @@ async function getTypes() {
     .aggregate([
       { $match: { type: { $ne: null } } },
       { $group: { _id: "$type" } },
+      { $sort: { _id: 1 } },
+    ])
+    .toArray();
+}
+
+async function getDirectors() {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+
+  return await collection
+    .aggregate([
+      { $match: { directors: { $exists: true, $ne: [] } } },
+      { $unwind: "$directors" },
+      { $group: { _id: "$directors" } },
       { $sort: { _id: 1 } },
     ])
     .toArray();
