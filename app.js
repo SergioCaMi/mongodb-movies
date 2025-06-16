@@ -178,11 +178,15 @@ app.post("/movies/add-form", async (req, res) => {
   const db = client.db("sample_mflix");
   const collection = db.collection("movies");
 
-  const { title, urlImage } = req.body;
+  const { title, year, type, genres, urlImage, synopsis } = req.body;
 
   const newMovie = {
     title,
+    year: year ? parseInt(year) : undefined,
+    type,
+    genres: genres ? genres.split(",").map(g => g.trim()) : [],
     poster: urlImage,
+    plot: synopsis,
   };
 
   try {
@@ -209,7 +213,6 @@ app.post("/movies/add-form", async (req, res) => {
     });
   }
 });
-
 // ********************************* Eliminar *********************************
 app.get("/delete", async (req, res) => {
   const db = client.db("sample_mflix");
