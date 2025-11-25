@@ -2,89 +2,143 @@
 <%- include('partials/aside') %>
 
 <section class="container">
-  <div class="movies-list">
+  <div class="movies-grid">
     <% if (movies && movies.length > 0) { %>
       <% movies.forEach(movie => { %>
-        <article class="movie-card">
-          <div class="movie-poster">
+        <article class="movie-card-grid" onclick="openModal('<%= movie._id.toString() %>')">
+          <div class="movie-poster-grid">
             <% if (movie.poster) { %>
-              <img src="<%= movie.poster %>" alt="Movie Poster">
+              <img src="<%= movie.poster %>" alt="<%= movie.title %>">
             <% } else { %>
-              <p>No image</p>
+              <div class="no-image">Sin imagen</div>
             <% } %>
           </div>
-
-          <div class="movie-info">
+          <div class="movie-title-grid">
             <h3><%= movie.title %></h3>
-            <ul>
-              <% if (movie.genres && Array.isArray(movie.genres) && movie.genres.length > 0) { %>
-                <li><strong>Género:</strong> <%= movie.genres.join(', ') %></li>
-              <% } %>
-
-              <% if (movie.directors && movie.directors.length > 0) { %>
-                <li><strong>Director:</strong> <%= movie.directors.join(', ') %></li>
-              <% } %>
-
-              <% if (movie.type) { %>
-                <li><strong>Tipo:</strong> <%= movie.type %></li>
-              <% } %>
-
-              <% if (movie.imdb && typeof movie.imdb.rating !== 'undefined') { %>
-                <li><strong>Calificación:</strong> <%= movie.imdb.rating %></li>
-              <% } %>
-
-              <% if (movie.released) { %>
-                <li><strong>Año:</strong> <%= new Date(movie.released).getFullYear() %></li>
-              <% } else if (movie.year) { %>
-                <li><strong>Año:</strong> <%= movie.year %></li>
-              <% } %>
-
-              <% if (movie.fullplot || movie.plot) { %>
-                <p class="movie-description"><%= movie.fullplot || movie.plot %></p>
-              <% } %>
-
-              <footer>
-                <% const encodedFilters = encodeURIComponent(JSON.stringify(filters)); %>
-                <a href="/delete?_id=<%= movie._id.toString() %>&filters=<%= encodedFilters %>" 
-                   onclick="return confirm('¿Estás seguro?')" 
-                   class="btn-delete">
-                  🗑️ Eliminar
-                </a>
-              </footer>
-            </ul>
           </div>
         </article>
       <% }) %>
-
-      <!-- Paginación -->
-      <% if (totalPages > 1) { %>
-        <div class="pagination">
-          <div class="pagination-controls">
-            <% const filtersEncoded = encodeURIComponent(JSON.stringify(filters)); %>
-
-            <% if (currentPage > 1) { %>
-              <a href="/movies?page=<%= currentPage - 1 %>&filters=<%= filtersEncoded %>" class="btn-pagination prev">⬅️ Página anterior</a>
-            <% } else { %>
-              <span class="btn-pagination prev disabled">⬅️ Página anterior</span>
-            <% } %>
-
-            <span class="page-info">Página <%= currentPage %> de <%= totalPages %></span>
-
-            <% if (currentPage < totalPages) { %>
-              <a href="/movies?page=<%= currentPage + 1 %>&filters=<%= filtersEncoded %>" class="btn-pagination next">Página siguiente ➡️</a>
-            <% } else { %>
-              <span class="btn-pagination next disabled">Página siguiente ➡️</span>
-            <% } %>
-          </div>
-        </div>
-      <% } %>
-
     <% } else { %>
       <div class="no-movies-container">
         <p class="no-movies-message">No hay películas para mostrar</p>
       </div>
     <% } %>
   </div>
+
+  <!-- Paginación -->
+  <% if (movies && movies.length > 0 && totalPages > 1) { %>
+    <div class="pagination">
+      <div class="pagination-controls">
+        <% const filtersEncoded = encodeURIComponent(JSON.stringify(filters)); %>
+
+        <% if (currentPage > 1) { %>
+          <a href="/movies?page=<%= currentPage - 1 %>&filters=<%= filtersEncoded %>" class="btn-pagination prev">⬅️ Página anterior</a>
+        <% } else { %>
+          <span class="btn-pagination prev disabled">⬅️ Página anterior</span>
+        <% } %>
+
+        <span class="page-info">Página <%= currentPage %> de <%= totalPages %></span>
+
+        <% if (currentPage < totalPages) { %>
+          <a href="/movies?page=<%= currentPage + 1 %>&filters=<%= filtersEncoded %>" class="btn-pagination next">Página siguiente ➡️</a>
+        <% } else { %>
+          <span class="btn-pagination next disabled">Página siguiente ➡️</span>
+        <% } %>
+      </div>
+    </div>
+  <% } %>
 </section>
+
+<!-- Modal -->
+<div id="movieModal" class="modal">
+  <div class="modal-content">
+    <span class="close" onclick="closeModal()">&times;</span>
+    <div class="modal-body">
+      <div class="modal-poster">
+        <img id="modalPoster" src="" alt="Poster">
+      </div>
+      <div class="modal-info">
+        <h2 id="modalTitle"></h2>
+        <div id="modalDetails"></div>
+        <div class="modal-actions">
+          <a id="modalEditBtn" href="#" class="btn-edit">✏️ Editar</a>
+          <a id="modalDeleteBtn" href="#" onclick="return confirm('¿Estás seguro?')" class="btn-delete">🗑️ Eliminar</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const moviesData = <%- JSON.stringify(movies) %>;
+  
+  function openModal(movieId) {
+    const movie = moviesData.find(m => m._id.toString() === movieId);
+    if (!movie) return;
+
+    const modal = document.getElementById('movieModal');
+    const poster = document.getElementById('modalPoster');
+    const title = document.getElementById('modalTitle');
+    const details = document.getElementById('modalDetails');
+    const editBtn = document.getElementById('modalEditBtn');
+    const deleteBtn = document.getElementById('modalDeleteBtn');
+
+    poster.src = movie.poster || '';
+    poster.alt = movie.title;
+    poster.style.display = movie.poster ? 'block' : 'none';
+    
+    title.textContent = movie.title;
+
+    let detailsHTML = '<ul>';
+    
+    if (movie.genres && movie.genres.length > 0) {
+      detailsHTML += `<li><strong>Género:</strong> ${movie.genres.join(', ')}</li>`;
+    }
+    
+    if (movie.directors && movie.directors.length > 0) {
+      detailsHTML += `<li><strong>Director:</strong> ${movie.directors.join(', ')}</li>`;
+    }
+    
+    if (movie.type) {
+      detailsHTML += `<li><strong>Tipo:</strong> ${movie.type}</li>`;
+    }
+    
+    if (movie.imdb && typeof movie.imdb.rating !== 'undefined') {
+      detailsHTML += `<li><strong>Calificación:</strong> ${movie.imdb.rating}</li>`;
+    }
+    
+    if (movie.released) {
+      const year = new Date(movie.released).getFullYear();
+      detailsHTML += `<li><strong>Año:</strong> ${year}</li>`;
+    } else if (movie.year) {
+      detailsHTML += `<li><strong>Año:</strong> ${movie.year}</li>`;
+    }
+    
+    detailsHTML += '</ul>';
+    
+    if (movie.fullplot || movie.plot) {
+      detailsHTML += `<p class="movie-description">${movie.fullplot || movie.plot}</p>`;
+    }
+    
+    details.innerHTML = detailsHTML;
+
+    const encodedFilters = encodeURIComponent(JSON.stringify(<%- JSON.stringify(filters) %>));
+    editBtn.href = `/movies/edit/${movieId}`;
+    deleteBtn.href = `/delete?_id=${movieId}&filters=${encodedFilters}`;
+
+    modal.style.display = 'block';
+  }
+
+  function closeModal() {
+    document.getElementById('movieModal').style.display = 'none';
+  }
+
+  window.onclick = function(event) {
+    const modal = document.getElementById('movieModal');
+    if (event.target === modal) {
+      closeModal();
+    }
+  }
+</script>
 
 <%- include('partials/footer') %>

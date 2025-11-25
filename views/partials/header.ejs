@@ -1,10 +1,12 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="es">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>MongoDB Movies</title>
-
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
   <!-- Estilos -->
   <link rel="stylesheet" href="/css/styles.css">
 </head>
@@ -12,9 +14,14 @@
 <body class="background">
   <!-- Header -->
   <header class="header">
-    <h1>MongoDB Movies</h1>
-    <a href="/" class="btn-home">🏠 Home</a>
-    <a href="/movies/add-form" class="btn-home">➕ Añadir Película/Serie</a>
+    <div class="header-brand">
+      <span class="logo-icon">🎬</span>
+      <h1 class="logo-text">MongoDB Movies</h1>
+    </div>
+    <nav class="header-nav">
+      <a href="/" class="btn-nav">🏠 Inicio</a>
+      <a href="/movies/add-form" class="btn-nav btn-nav-primary">➕ Agregar Película</a>
+    </nav>
   </header>
 
   <!-- Contenedor principal -->

@@ -55,7 +55,7 @@ app.get("/", async (req, res) => {
   const collection = db.collection("movies");
 
   // Películas recientes
-  const cursor = collection.find().sort({ released: -1 }).limit(10);
+  const cursor = collection.find().sort({ released: -1 }).limit(12);
   const movies = [];
   while (await cursor.hasNext()) {
     const doc = await cursor.next();
@@ -163,7 +163,7 @@ async function handleMoviesRequest(req, res) {
     order = { released: -1 }; // Por defecto descending
   }
 
-  const limit = 10;
+  const limit = 12;
   const pageNumber = Math.max(parseInt(page), 1);
   const skip = (pageNumber - 1) * limit;
 
@@ -260,6 +260,79 @@ app.post("/movies/add-form", async (req, res) => {
   }
 });
 
+// ********************************* Ruta para mostrar el formulario de edición *********************************
+app.get("/movies/edit/:id", async (req, res) => {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+
+  const { id } = req.params;
+
+  try {
+    const movie = await collection.findOne({ _id: new ObjectId(id) });
+
+    if (!movie) {
+      return res.status(404).render("error", {
+        title: "Película no encontrada",
+        code: "404",
+        message: "No se encontró la película.",
+      });
+    }
+
+    const allGenres = await getGenres();
+    const allTypes = await getTypes();
+    const allDirectors = await getDirectors();
+
+    res.render("editForm.ejs", {
+      movie,
+      allGenres,
+      allTypes,
+      allDirectors,
+      title: "Editar Película",
+      filters: {},
+      msg: null,
+      color: null,
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).send("Error al cargar la película.");
+  }
+});
+
+// ********************************* Ruta para editar *********************************
+app.post("/movies/edit/:id", async (req, res) => {
+  const db = client.db("sample_mflix");
+  const collection = db.collection("movies");
+
+  const { id } = req.params;
+  const { title, year, type, genres, urlImage, synopsis, director } = req.body;
+
+  const updatedMovie = {
+    title,
+    year: year ? parseInt(year) : undefined,
+    type,
+    genres: genres ? genres.split(",").map((g) => g.trim()) : [],
+    directors: director ? director.split(",").map((d) => d.trim()) : [],
+    poster: urlImage,
+    plot: synopsis,
+  };
+
+  try {
+    const result = await collection.updateOne(
+      { _id: new ObjectId(id) },
+      { $set: updatedMovie }
+    );
+
+    if (result.modifiedCount === 1 || result.matchedCount === 1) {
+      res.redirect("/");
+    } else {
+      res.status(404).send("No se encontró la película con ese ID.");
+    }
+  } catch (err) {
+    console.error("Error al editar la película:", err.message);
+    res.status(500).send("Error al editar la película.");
+  }
+});
+
 // ********************************* Eliminar *********************************
 app.get("/delete", async (req, res) => {
   const db = client.db("sample_mflix");
@@ -308,9 +381,11 @@ app.use((req, res) => {
 // ********************************* Manejo de errores global *********************************
 app.use((err, req, res, next) => {
   console.error(err);
-  res.status(500).send(
-    '<p>Ups! La operación ha fallado. Hemos informado a los desarrolladores. Vuelve a probarlo más tarde. <a href="/">Volver a la home</a></p>'
-  );
+  res.status(500).render("error", {
+    title: "Error del servidor",
+    code: "500",
+    message: "Ups! La operación ha fallado. Hemos informado a los desarrolladores. Vuelve a probarlo más tarde."
+  });
 });
 
 // ********************************* Funciones *********************************

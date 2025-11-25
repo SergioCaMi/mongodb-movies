@@ -1,40 +1,67 @@
 <%- include('partials/header') %>
-<%- include('partials/aside') %>
 
-<section class="container">
-  <div class="form-container">
-    <h2>Agregar Nueva Película</h2>
+<section class="container-full">
+  <div class="form-container-modern">
+    <div class="form-header">
+      <span class="form-icon">🎬</span>
+      <h2>Agregar Nueva Película</h2>
+      <p class="form-subtitle">Completa la información de la película que deseas agregar</p>
+    </div>
 
     <% if (msg) { %>
-      <div class="message-box" style="color: <%= color %>;">
+      <div class="alert <%= color === 'green' ? 'alert-success' : 'alert-error' %>">
+        <span class="alert-icon"><%= color === 'green' ? '✓' : '✕' %></span>
         <%= msg %>
       </div>
     <% } %>
 
-    <form action="/movies/add-form" method="POST">
-      <label for="title">Título*:</label>
-      <input type="text" id="title" name="title" required maxlength="60">
+    <form action="/movies/add-form" method="POST" class="modern-form">
+      <div class="form-row">
+        <div class="form-group">
+          <label for="title">📽️ Título*</label>
+          <input type="text" id="title" name="title" required maxlength="60" placeholder="Ingresa el título de la película">
+        </div>
+      </div>
 
-      <label for="year">Año:</label>
-      <input type="number" id="year" name="year" min="1800" max="2100">
+      <div class="form-row form-row-2">
+        <div class="form-group">
+          <label for="year">📅 Año</label>
+          <input type="number" id="year" name="year" min="1800" max="2100" placeholder="2024">
+        </div>
 
-      <label for="type">Tipo*:</label>
-      <input type="text" id="type" name="type" placeholder="Ej: movie" required>
+        <div class="form-group">
+          <label for="type">🎭 Tipo*</label>
+          <input type="text" id="type" name="type" placeholder="movie, series, etc." required>
+        </div>
+      </div>
 
-      <label for="director">Director*:</label>
-      <input type="text" id="director" name="director" placeholder="Ej: Christopher Nolan" required>
+      <div class="form-group">
+        <label for="director">🎥 Director*</label>
+        <input type="text" id="director" name="director" placeholder="Christopher Nolan" required>
+      </div>
 
-      <label for="genres">Géneros (separados por comas):</label>
-      <input type="text" id="genres" name="genres" placeholder="Ej: Drama,Action">
+      <div class="form-group">
+        <label for="genres">🏷️ Géneros</label>
+        <input type="text" id="genres" name="genres" placeholder="Drama, Action, Thriller (separados por comas)">
+        <small class="form-hint">Separa múltiples géneros con comas</small>
+      </div>
 
-      <label for="urlImage">URL del Poster*:</label>
-      <input type="url" id="urlImage" name="urlImage" required placeholder="Ej: https://example.com/poster.jpg"> 
+      <div class="form-group">
+        <label for="urlImage">🖼️ URL del Poster*</label>
+        <input type="url" id="urlImage" name="urlImage" required placeholder="https://example.com/poster.jpg">
+      </div>
 
-      <label for="synopsis">Sinopsis:</label>
-      <textarea id="synopsis" name="synopsis" rows="4" placeholder="Describe brevemente la película..."></textarea>
+      <div class="form-group">
+        <label for="synopsis">📝 Sinopsis</label>
+        <textarea id="synopsis" name="synopsis" rows="5" placeholder="Describe la trama de la película..."></textarea>
+      </div>
 
-      <button type="submit" class="btn-submit">➕ Añadir Película</button>
-      <p>* Campos obligatorios</p>
+      <div class="form-actions">
+        <button type="submit" class="btn-submit-modern">✨ Añadir Película</button>
+        <a href="/" class="btn-cancel-modern">Cancelar</a>
+      </div>
+      
+      <p class="form-note">* Campos obligatorios</p>
     </form>
   </div>
 </section>
