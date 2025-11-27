@@ -1029,37 +1029,63 @@ footer a:hover {
 
 
 /* ********** Layout Responsivo ********** */
-@media (max-width: 900px) {
-  .header {
-    flex-direction: column;
-    align-items: flex-start;
+
+/* Tablets y pantallas medianas */
+@media (max-width: 1024px) {
+  .movies-grid {
+    grid-template-columns: repeat(2, 1fr);
+    gap: 1.2rem;
   }
 
-  .header a {
-    margin-top: 0.5rem;
+  .filters {
+    width: 280px;
+  }
+
+  .container {
+    margin-left: 280px;
+  }
+}
+
+/* Tablets pequeñas */
+@media (max-width: 900px) {
+  .header {
+    padding: 1rem 1.5rem;
+  }
+
+  .logo-text {
+    font-size: 1.5rem;
+  }
+
+  .header-nav {
+    gap: 0.5rem;
+  }
+
+  .btn-nav {
+    padding: 0.5rem 0.8rem;
+    font-size: 0.9rem;
   }
 
   .page-container {
-    flex-direction: column;
-    margin-top: 100px;
+    margin-top: 75px;
   }
 
   .filters {
     position: static;
     width: 100%;
     border-right: none;
-    border-bottom: 1px solid #333;
-    margin-bottom: 2rem;
+    border-bottom: 2px solid rgba(78, 140, 255, 0.3);
+    margin-bottom: 1.5rem;
     height: auto;
     overflow-y: visible;
   }
 
   .container {
     margin-left: 0;
+    padding: 1rem 1.5rem;
   }
 
   .container-full {
-    padding: 1rem;
+    padding: 2rem 1.5rem;
   }
 
   .movies-grid {
@@ -1067,20 +1093,326 @@ footer a:hover {
     gap: 1rem;
   }
 
+  .modal-content {
+    width: 95%;
+    margin: 5% auto;
+  }
+
   .modal-body {
     flex-direction: column;
+    gap: 1.5rem;
+    padding: 1.5rem;
   }
 
   .modal-poster {
     width: 100%;
-  }
-
-  .modal-content {
-    width: 95%;
-    margin: 10% auto;
+    max-width: 300px;
+    margin: 0 auto;
   }
 
   .form-row-2 {
     grid-template-columns: 1fr;
+  }
+
+  .form-container-modern {
+    padding: 2rem 1.5rem;
+  }
+}
+
+/* Móviles grandes */
+@media (max-width: 600px) {
+  .header {
+    padding: 0.8rem 1rem;
+  }
+
+  .logo-icon {
+    font-size: 2rem;
+  }
+
+  .logo-text {
+    font-size: 1.2rem;
+  }
+
+  .header-nav {
+    flex-wrap: wrap;
+    gap: 0.4rem;
+    width: 100%;
+  }
+
+  .btn-nav {
+    padding: 0.4rem 0.8rem;
+    font-size: 0.85rem;
+    flex: 1;
+    text-align: center;
+  }
+
+  .page-container {
+    max-width: 100%;
+    padding: 0;
+    margin-top: 100px;
+  }
+
+  .filters {
+    padding: 1rem;
+    border-radius: 0;
+  }
+
+  .filters h2 {
+    font-size: 1.1rem;
+  }
+
+  .filter-row {
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+
+  .genre-btn,
+  .type-btn {
+    font-size: 0.75rem;
+    padding: 0.3em 0.7em;
+  }
+
+  .container {
+    padding: 0.8rem;
+  }
+
+  .container-full {
+    padding: 1.5rem 0.8rem;
+    padding-top: 2rem;
+  }
+
+  .movies-grid {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+    padding: 0.5rem 0;
+  }
+
+  .movie-card-grid {
+    max-width: 400px;
+    margin: 0 auto;
+    width: 100%;
+  }
+
+  .movie-title-grid h3 {
+    font-size: 0.95rem;
+  }
+
+  .modal-content {
+    width: 98%;
+    margin: 2% auto;
+    border-radius: 8px;
+  }
+
+  .modal-body {
+    padding: 1rem;
+    gap: 1rem;
+  }
+
+  .modal-poster {
+    max-width: 100%;
+  }
+
+  .modal-info h2 {
+    font-size: 1.5rem;
+  }
+
+  .modal-info li {
+    font-size: 0.9rem;
+  }
+
+  .modal-actions {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    width: 100%;
+    text-align: center;
+    padding: 0.8em 1em;
+  }
+
+  .form-container-modern {
+    padding: 1.5rem 1rem;
+    border-radius: 12px;
+  }
+
+  .form-header h2 {
+    font-size: 1.5rem;
+  }
+
+  .form-icon {
+    font-size: 2.5rem;
+  }
+
+  .form-subtitle {
+    font-size: 0.85rem;
+  }
+
+  .form-group label {
+    font-size: 0.9rem;
+  }
+
+  .form-group input,
+  .form-group textarea {
+    padding: 0.7rem 0.8rem;
+    font-size: 0.9rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-submit-modern,
+  .btn-cancel-modern {
+    width: 100%;
+    text-align: center;
+  }
+
+  .pagination-controls {
+    flex-direction: column;
+    gap: 0.8rem;
+  }
+
+  .btn-pagination {
+    width: 100%;
+    text-align: center;
+  }
+
+  .no-movies-container {
+    min-height: 200px;
+    padding: 1.5rem;
+  }
+
+  .no-movies-message {
+    font-size: 1.1rem;
+  }
+}
+
+/* Móviles pequeños */
+@media (max-width: 400px) {
+  .header {
+    padding: 0.7rem 0.8rem;
+  }
+
+  .logo-icon {
+    font-size: 1.8rem;
+  }
+
+  .logo-text {
+    font-size: 1.1rem;
+  }
+
+  .btn-nav {
+    font-size: 0.8rem;
+    padding: 0.4rem 0.6rem;
+  }
+
+  .filters {
+    padding: 0.8rem;
+  }
+
+  .filters h2 {
+    font-size: 1rem;
+  }
+
+  .filters label {
+    font-size: 0.85rem;
+  }
+
+  .filters input[type="text"],
+  .filters input[type="number"],
+  .filters select {
+    font-size: 0.85rem;
+    padding: 0.4rem;
+  }
+
+  .genre-btn,
+  .type-btn {
+    font-size: 0.7rem;
+    padding: 0.25em 0.6em;
+  }
+
+  #Buscar,
+  .btn-clear-filters {
+    font-size: 0.9rem;
+    padding: 0.6rem 1rem;
+  }
+
+  .container {
+    padding: 0.5rem;
+  }
+
+  .container-full {
+    padding: 1rem 0.5rem;
+  }
+
+  .movie-title-grid {
+    padding: 0.6rem;
+  }
+
+  .movie-title-grid h3 {
+    font-size: 0.9rem;
+  }
+
+  .modal-info h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-container-modern {
+    padding: 1.2rem 0.8rem;
+  }
+
+  .form-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-icon {
+    font-size: 2rem;
+  }
+
+  .btn-submit-modern,
+  .btn-cancel-modern {
+    padding: 0.8rem 1.5rem;
+    font-size: 0.95rem;
+  }
+}
+
+/* Ajustes para modo horizontal en móviles */
+@media (max-height: 500px) and (orientation: landscape) {
+  .header {
+    padding: 0.5rem 1rem;
+  }
+
+  .logo-icon {
+    font-size: 1.5rem;
+  }
+
+  .logo-text {
+    font-size: 1rem;
+  }
+
+  .page-container {
+    margin-top: 60px;
+  }
+
+  .filters {
+    top: 60px;
+  }
+
+  .modal-content {
+    margin: 2% auto;
+    max-height: 95vh;
+    overflow-y: auto;
+  }
+
+  .modal-body {
+    flex-direction: row;
+    padding: 1rem;
+  }
+
+  .modal-poster {
+    width: 200px;
+    max-width: 40%;
   }
 }
